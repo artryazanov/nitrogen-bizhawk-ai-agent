@@ -82,82 +82,91 @@ local function extract_numbers(json_str, key)
 end
 
 -- === MAIN LOGIC ===
-console.clear()
-console.log("Connecting to " .. HOST .. ":" .. PORT .. "...")
-
--- FIX: Rename variable to 'tcp' so we don't hide global 'client'
-local tcp = TcpClient()
-local success, err = pcall(function() 
-    tcp:Connect(HOST, PORT) 
-end)
-
-if not success then
-    console.log("Connection Failed: " .. tostring(err))
-    return
-end
-
--- Set timeout to 5s so the emulator doesn't hang if the server is "thinking"
-tcp.ReceiveTimeout = 5000
-tcp.SendTimeout = 5000
-
-console.log("Connected!")
-local stream = tcp:GetStream()
-local resp_buffer = luanet.import_type("System.Byte[]")(4096)
-
-while tcp.Connected do
-    -- 1. Screenshot
-    client.screenshot(TEMP_IMG_FILE)
+if not TESTING_MODE then
+    console.clear()
+    console.log("Connecting to " .. HOST .. ":" .. PORT .. "...")
     
-    -- 2. Read Bytes & Send Header
-    local file_bytes = File.ReadAllBytes(TEMP_IMG_FILE)
-    local len = file_bytes.Length
-    local json_header = string.format('{"type": "predict", "len": %d}\n', len)
-    local header_bytes = Encoding.ASCII:GetBytes(json_header)
+    -- FIX: Rename variable to 'tcp' so we don't hide global 'client'
+    local tcp = TcpClient()
+    local success, err = pcall(function() 
+        tcp:Connect(HOST, PORT) 
+    end)
     
-    stream:Write(header_bytes, 0, header_bytes.Length)
-    stream:Write(file_bytes, 0, file_bytes.Length)
+    if not success then
+        console.log("Connection Failed: " .. tostring(err))
+        return
+    end
     
-    -- 3. Receive & Process Loop
-    local bytes_read = stream:Read(resp_buffer, 0, resp_buffer.Length)
-    if bytes_read > 0 then
-        local resp_str = Encoding.ASCII:GetString(resp_buffer, 0, bytes_read)
+    -- Set timeout to 5s so the emulator doesn't hang if the server is "thinking"
+    tcp.ReceiveTimeout = 5000
+    tcp.SendTimeout = 5000
+    
+    console.log("Connected!")
+    local stream = tcp:GetStream()
+    local resp_buffer = luanet.import_type("System.Byte[]")(4096)
+    
+    while tcp.Connected do
+        -- 1. Screenshot
+        client.screenshot(TEMP_IMG_FILE)
         
-        -- Extract ALL numbers for buttons and stick
-        local all_buttons = extract_numbers(resp_str, "buttons")
-        local all_sticks  = extract_numbers(resp_str, "j_left")
+        -- 2. Read Bytes & Send Header
+        local file_bytes = File.ReadAllBytes(TEMP_IMG_FILE)
+        local len = file_bytes.Length
+        local json_header = string.format('{"type": "predict", "len": %d}\n', len)
+        local header_bytes = Encoding.ASCII:GetBytes(json_header)
         
-        -- Calculate number of steps (frames) predicted by the model
-        -- Each button step takes 21 numbers
-        local num_steps = math.floor(#all_buttons / 21)
+        stream:Write(header_bytes, 0, header_bytes.Length)
+        stream:Write(file_bytes, 0, file_bytes.Length)
         
-        if num_steps > 0 then
-            gui.drawText(0, 0, "AI Steps: " .. num_steps, "green")
+        -- 3. Receive & Process Loop
+        local bytes_read = stream:Read(resp_buffer, 0, resp_buffer.Length)
+        if bytes_read > 0 then
+            local resp_str = Encoding.ASCII:GetString(resp_buffer, 0, bytes_read)
             
-            -- Play the ENTIRE predicted sequence
-            for i = 0, num_steps - 1 do
-                -- Button slice for current step
-                local btn_slice = {}
-                for k = 1, 21 do
-                    table.insert(btn_slice, all_buttons[i * 21 + k])
-                end
+            -- Extract ALL numbers for buttons and stick
+            local all_buttons = extract_numbers(resp_str, "buttons")
+            local all_sticks  = extract_numbers(resp_str, "j_left")
+            
+            -- Calculate number of steps (frames) predicted by the model
+            -- Each button step takes 21 numbers
+            local num_steps = math.floor(#all_buttons / 21)
+            
+            if num_steps > 0 then
+                gui.drawText(0, 0, "AI Steps: " .. num_steps, "green")
                 
-                -- Stick slice for current step
-                local stick_slice = {0, 0}
-                if #all_sticks >= (i + 1) * 2 then
-                    stick_slice[1] = all_sticks[i * 2 + 1]
-                    stick_slice[2] = all_sticks[i * 2 + 2]
+                -- Play the ENTIRE predicted sequence
+                for i = 0, num_steps - 1 do
+                    -- Button slice for current step
+                    local btn_slice = {}
+                    for k = 1, 21 do
+                        table.insert(btn_slice, all_buttons[i * 21 + k])
+                    end
+                    
+                    -- Stick slice for current step
+                    local stick_slice = {0, 0}
+                    if #all_sticks >= (i + 1) * 2 then
+                        stick_slice[1] = all_sticks[i * 2 + 1]
+                        stick_slice[2] = all_sticks[i * 2 + 2]
+                    end
+                    
+                    -- Apply controls and advance frame
+                    apply_controls_frame(btn_slice, stick_slice)
+                    emu.frameadvance()
                 end
-                
-                -- Apply controls and advance frame
-                apply_controls_frame(btn_slice, stick_slice)
+            else
+                -- If response is empty or failed to parse, just skip frame
                 emu.frameadvance()
             end
-        else
-            -- If response is empty or failed to parse, just skip frame
-            emu.frameadvance()
         end
     end
+    
+    tcp:Close()
+    console.log("Disconnected.")
 end
 
-tcp:Close()
-console.log("Disconnected.")
+-- Export functions for testing
+return {
+    extract_numbers = extract_numbers,
+    apply_controls_frame = apply_controls_frame,
+    set_console_type = function(t) CONSOLE_TYPE = t end
+}

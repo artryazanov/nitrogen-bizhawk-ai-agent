@@ -41,16 +41,18 @@ You can modify the following parameters at the beginning of the script:
 * `TEMP_IMG_FILE`: Name of the temporary file for screenshot transfer.
 
 ## 🧪 Testing
-We use the **Busted** framework for testing script logic outside the emulator.
+The project includes unit tests using the **LuaUnit** framework (vendored in `tests/luaunit.lua`).
 
-1. **Install Busted**:
+1. **Install Lua**:
+   Ensure you have Lua installed (Lua 5.1, 5.2, 5.3, or 5.4).
    ```bash
-   luarocks install busted
+   sudo apt install lua5.3  # Debian/Ubuntu
+   # or similar for your OS
    ```
 
 2. **Run tests**:
    ```bash
-   busted .
+   lua tests/test_bizhawk_agent.lua
    ```
 
 Tests verify the correctness of JSON extraction and button mapping logic without needing to launch the emulator itself.
