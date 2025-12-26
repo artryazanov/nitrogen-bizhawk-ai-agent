@@ -217,5 +217,6 @@ return {
     extract_numbers = extract_numbers,
     apply_controls_frame = apply_controls_frame,
     get_resize_mode = get_resize_mode,
-    set_console_type = function(t) CONSOLE_TYPE = t end
+    set_console_type = function(t) CONSOLE_TYPE = t end,
+    set_allow_menu = function(val) ALLOW_MENU = val end
 }

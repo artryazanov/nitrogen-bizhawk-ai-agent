@@ -173,5 +173,45 @@ function TestBizHawkAgent:test_GetResizeMode()
     luaunit.assertEquals(agent.get_resize_mode(nil), "pad") -- Nil safety check (implicit)
 end
 
+function TestBizHawkAgent:test_ApplyControls_MenuButtons_Disabled()
+    agent.set_console_type("NES")
+    agent.set_allow_menu(false)
+
+    local btns = {}
+    for i=1, 21 do btns[i] = 0 end
+    
+    -- Simulate model predicting Start and Select
+    btns[20] = 1.0 -- Start
+    btns[1] = 1.0  -- Select
+
+    local stick = {0, 0}
+    agent.apply_controls_frame(btns, stick)
+
+    local joy = _G.last_joypad_set
+    -- Should be false because ALLOW_MENU is false
+    luaunit.assertFalse(joy["P1 Start"])
+    luaunit.assertFalse(joy["P1 Select"])
+end
+
+function TestBizHawkAgent:test_ApplyControls_MenuButtons_Enabled()
+    agent.set_console_type("NES")
+    agent.set_allow_menu(true)
+
+    local btns = {}
+    for i=1, 21 do btns[i] = 0 end
+    
+    -- Simulate model predicting Start and Select
+    btns[20] = 1.0 -- Start
+    btns[1] = 1.0  -- Select
+
+    local stick = {0, 0}
+    agent.apply_controls_frame(btns, stick)
+
+    local joy = _G.last_joypad_set
+    -- Should be true because ALLOW_MENU is true
+    luaunit.assertTrue(joy["P1 Start"])
+    luaunit.assertTrue(joy["P1 Select"])
+end
+
 -- 3. Run Tests
 os.exit(luaunit.LuaUnit.run("TestBizHawkAgent"))
