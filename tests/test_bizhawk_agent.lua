@@ -179,7 +179,7 @@ function TestBizHawkAgent:test_ApplyControls_MenuButtons_Disabled()
 
     local btns = {}
     for i=1, 21 do btns[i] = 0 end
-    
+
     -- Simulate model predicting Start and Select
     btns[20] = 1.0 -- Start
     btns[1] = 1.0  -- Select
@@ -199,7 +199,7 @@ function TestBizHawkAgent:test_ApplyControls_MenuButtons_Enabled()
 
     local btns = {}
     for i=1, 21 do btns[i] = 0 end
-    
+
     -- Simulate model predicting Start and Select
     btns[20] = 1.0 -- Start
     btns[1] = 1.0  -- Select
