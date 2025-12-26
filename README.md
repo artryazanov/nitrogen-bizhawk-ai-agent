@@ -1,6 +1,6 @@
 # NitroGen BizHawk Agent
 
-[![Lua Tests](https://github.com/artryazanov/nitrogen-bizhawk-ai-agent/actions/workflows/lua-tests.yml/badge.svg)](https://github.com/artryazanov/nitrogen-bizhawk-ai-agent/actions)
+[![CI](https://github.com/artryazanov/nitrogen-bizhawk-ai-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/artryazanov/nitrogen-bizhawk-ai-agent/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 This repository contains a lightweight Lua script for the **BizHawk** emulator, enabling the **NitroGen** neural network model to control gameplay in real-time.
@@ -13,7 +13,7 @@ This repository contains a lightweight Lua script for the **BizHawk** emulator, 
 
 ## 📋 Requirements
 
-1. [BizHawk Emulator](https://tasvideos.org/BizHawk) (tested on Windows).
+1. [BizHawk Emulator](https://tasvideos.org/BizHawk) (v2.9+ recommended, uses Lua 5.4).
 2. Running [NitroGen Server](https://github.com/artryazanov/nitrogen-server) (usually on port `5556`).
 3. Installed `Luarocks` package (if you want to run tests locally).
 
@@ -44,9 +44,9 @@ You can modify the following parameters at the beginning of the script:
 The project includes unit tests using the **LuaUnit** framework (vendored in `tests/luaunit.lua`).
 
 1. **Install Lua**:
-   Ensure you have Lua installed (Lua 5.1, 5.2, 5.3, or 5.4).
+   Ensure you have Lua installed (Lua 5.4 is recommended for compatibility with BizHawk 2.9+).
    ```bash
-   sudo apt install lua5.3  # Debian/Ubuntu
+   sudo apt install lua5.4  # Debian/Ubuntu
    # or similar for your OS
    ```
 
