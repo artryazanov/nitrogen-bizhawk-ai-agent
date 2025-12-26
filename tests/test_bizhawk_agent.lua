@@ -161,4 +161,4 @@ function TestBizHawkAgent:test_ApplyControls_Stick_Threshold()
 end
 
 -- 3. Run Tests
-os.exit(luaunit.LuaUnit.run())
+os.exit(luaunit.LuaUnit.run("TestBizHawkAgent"))
