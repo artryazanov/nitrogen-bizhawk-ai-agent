@@ -47,7 +47,7 @@ You can modify the following parameters at the beginning of the script:
 
 * `HOST`: Server IP address (default `127.0.0.1`).
 * `PORT`: Server TCP port (default `5556`).
-* `TEMP_IMG_FILE`: Name of the temporary file for screenshot transfer.
+* `TEMP_IMG_FILE`: Path to the temporary file for screenshot transfer (defaults to system temp directory).
 
 ## 🧪 Testing
 The project includes unit tests using the **LuaUnit** framework (vendored in `tests/luaunit.lua`).

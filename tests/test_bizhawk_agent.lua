@@ -23,6 +23,11 @@ _G.luanet = {
             return { ASCII = { GetBytes = function() end, GetString = function() end } }
         elseif type_name == "System.Byte[]" then
             return function(size) return {} end
+        elseif type_name == "System.IO.Path" then
+            return {
+                GetTempPath = function() return "/tmp/" end,
+                Combine = function(p1, p2) return p1 .. p2 end
+            }
         end
         return {}
     end

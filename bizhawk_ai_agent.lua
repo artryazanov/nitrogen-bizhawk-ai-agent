@@ -6,12 +6,13 @@ luanet.load_assembly("System")
 -- Imports
 local TcpClient = luanet.import_type("System.Net.Sockets.TcpClient")
 local File = luanet.import_type("System.IO.File")
+local Path = luanet.import_type("System.IO.Path")
 local Encoding = luanet.import_type("System.Text.Encoding")
 
 -- === CONFIGURATION ===
 local HOST = "127.0.0.1"
 local PORT = 5556
-local TEMP_IMG_FILE = "nitrogen_temp.png"
+local TEMP_IMG_FILE = Path.Combine(Path.GetTempPath(), "nitrogen_temp.png")
 -- Automatically detect system
 local CONSOLE_TYPE = emu.getsystemid()
 
